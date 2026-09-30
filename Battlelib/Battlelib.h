@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <stdexcept>
 
 enum class Ship { 
 	wsl1=1,
@@ -29,9 +30,9 @@ private:
 	int x_;
 	int y_;
 public:
-	inline Position(): x_(0), y_(0){}
+	inline Position(): x_(1), y_(1){}
 	inline Position(const Position&) = default;
-	inline Position(int x, int y): x_(x), y_(y) {}
+	Position(int x, int y);
 
 	inline int getx() const { return x_; }
 	inline int gety() const { return y_; }

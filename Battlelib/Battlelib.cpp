@@ -1,5 +1,20 @@
 #include "Battlelib.h"
 
+Position::Position(int x, int y) {
+    if (x < 1 || y < 1 || x>10 || y>10) throw std::logic_error("This position not in field");
+    x_ = x;
+    y_ = y;
+}
+
+void Position::setx(int x) {
+    if (x < 1 || x>10) throw std::logic_error("This position not in field");
+    x_ = x;
+}
+void Position::sety(int y) {
+    if (y < 1 || y>10) throw std::logic_error("This position not in field");
+    y_ = y;
+}
+
 bool Warship::is_ship_cell(const Position& pos) const {
 	for (const Position& p : cells_) {
 		if (pos == p) return true;
