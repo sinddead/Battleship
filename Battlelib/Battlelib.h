@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <random>
+#include <iostream>
 
 enum class Ship { 
 	wsl1=1,
@@ -36,8 +38,8 @@ public:
 
 	inline int getx() const { return x_; }
 	inline int gety() const { return y_; }
-	inline void setx(int x) { x_=x; }
-	inline void sety(int y) { y_=y; }
+	void setx(int x);
+	void sety(int y);
 
 	inline bool operator==(const Position& other) const {
 		return x_ == other.x_ && y_ == other.y_;
@@ -72,6 +74,24 @@ private:
 	std::vector<Warship>  ships_;
 	std::vector<CellState> field_;
 	char ships_alive_ = 0;
+
+	CellState& get(int x, int y) { return field_[(y - 1) * FIELDSIZE + (x - 1)]; }
+	const CellState& get(int x, int y) const { return field_[(y - 1) * FIELDSIZE + (x - 1)]; }
+	bool canPlaceShip_(Ship s, bool vertical, const Position& pos) const;
+	bool isShipDead_(const Warship& w) const;
+	void markAroundDead_(const Warship& w);
+public:
+	Gamefield();
+	CellState check(int x, int y) const;
+	inline char shipsAlive() const { return ships_alive_; }
+	inline const std::vector<Warship>& ships() const { return ships_; }
+	inline bool inBounds(int x, int y) const {
+		return x >= 1 && x <= FIELDSIZE && y >= 1 && y <= FIELDSIZE;}
+	bool placeShip(Ship s, bool vertical, const Position& pos);
+	void randomPlacement();
+	bool shoot(const Position& p);
+	void markVisibleShot(const Position& p, CellState state);
+	void print(bool hideShips = false) const;
 	};
 
 class Player{

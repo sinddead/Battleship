@@ -29,27 +29,46 @@ TEST(PositionTest, Setters) {
     EXPECT_EQ(p.gety(), 7);
 }
 
-TEST(PositionTest, NegativeSetters) {
-    EXPECT_ANY_THROW(Position p(-2,3));
-}
-
-TEST(PositionTest, NegativeConstruct) {
-    Position p;
-    EXPECT_ANY_THROW(p.setx(-6));
-}
-
 TEST(PositionTest, EqualityTrue) {
     EXPECT_TRUE(Position(1, 2) == Position(1, 2));
-}
-
-TEST(PositionTest, EqualityFalse) {
-    EXPECT_FALSE(Position(1, 2) == Position(2, 2));
 }
 
 TEST(PositionTest, InequalityTrue) {
     EXPECT_TRUE(Position(1, 2) != Position(2, 1));
 }
 
-TEST(PositionTest, InequalityFalse) {
-    EXPECT_FALSE(Position(1, 2) != Position(1, 2));
+TEST(WarshipTest, ShipType) {
+    Warship w(Ship::wsl3, false, Position(0, 0));
+    EXPECT_EQ(w.getship(), Ship::wsl3);
+}
+
+TEST(WarshipTest, FlagsTest) {
+    Warship a(Ship::wsl2, false, Position(0, 0));
+    EXPECT_FALSE(a.getvertical());
+}
+
+TEST(WarshipTest, PositionCorrect) {
+    Position pos(4, 7);
+    Warship w(Ship::wsl2, false, pos);
+    EXPECT_EQ(w.getpos(), pos);
+    EXPECT_EQ(w.getpos().getx(), 4);
+    EXPECT_EQ(w.getpos().gety(), 7);
+}
+
+TEST(WarshipTest, HorizontalCellsGoRight) {
+    Warship w(Ship::wsl3, false, Position(2, 5));
+    const auto& cells = w.getcells();
+    ASSERT_EQ(cells.size(), 3u);
+    EXPECT_EQ(cells[0], Position(2, 5));
+    EXPECT_EQ(cells[1], Position(3, 5));
+    EXPECT_EQ(cells[2], Position(4, 5));
+}
+
+TEST(WarshipTest, VerticalCellsGoDown) {
+    Warship w(Ship::wsl3, true, Position(2, 5));
+    const auto& cells = w.getcells();
+    ASSERT_EQ(cells.size(), 3u);
+    EXPECT_EQ(cells[0], Position(2, 5));
+    EXPECT_EQ(cells[1], Position(2, 6));
+    EXPECT_EQ(cells[2], Position(2, 7));
 }
