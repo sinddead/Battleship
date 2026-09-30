@@ -174,3 +174,98 @@ void Gamefield::print(bool hideShips) const {
         std::cout << "\n";
     }
 }
+
+
+bool Player::makeMove(int x, int y, Gamefield& TrueEnemyBoard) {
+    Position p(x, y);
+    if (opponentBoard_.check(x, y) != CellState::Empty) return false;
+    bool hit = TrueEnemyBoard.shoot(p);
+    if (hit) {
+        CellState real = TrueEnemyBoard.check(x, y);
+        if (real != CellState::Dead) real = CellState::Hit;
+        opponentBoard_.markVisibleShot(p, real);
+    }
+    else {
+        opponentBoard_.markVisibleShot(p, CellState::Miss);
+    }
+    return hit;
+}
+
+void Battle::setup() {
+    std::cout << "=== Ship placement ===\n";
+    p1_.yourBoard().randomPlacement();
+    p2_.yourBoard().randomPlacement();
+
+    std::cout << "\nPlayer " << p1_.name() << "'s board:\n";
+    p1_.yourBoard().print(false);
+    std::cout << "\nPlayer " << p2_.name() << "'s board:\n";
+    p2_.yourBoard().print(false);
+}
+
+void Battle::printBoth() const {
+    std::cout << "\n--- " << p1_.name() << " (your board) ---\n";
+    p1_.yourBoard().print(false);
+    std::cout << "\n--- " << p1_.name() << " (enemy board) ---\n";
+    p1_.opponentBoard().print(true);
+}
+
+void Battle::turn_(Player& attacker, Player& defender) {
+    while (true) {
+        std::cout << "\nPlayer " << attacker.name()
+            << "'s turn. Enter coordinates (x y) in range 1.." << FIELDSIZE << ": ";
+        int x, y;
+        if (!(std::cin >> x >> y)) {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            continue;
+        }
+        if (!attacker.opponentBoard().inBounds(x, y)) {
+            std::cout << "Invalid coordinates (must be 1.." << FIELDSIZE << ").\n";
+            continue;
+        }
+        if (attacker.opponentBoard().check(x, y) != CellState::Empty) {
+            std::cout << "This cell has already been shot at.\n";
+            continue;
+        }
+
+        bool hit = attacker.makeMove(x, y, defender.yourBoard());
+
+        std::cout << "\nEnemy board:\n";
+        attacker.opponentBoard().print(true);
+        std::cout << "\nYour board:\n";
+        attacker.yourBoard().print(false);
+
+        if (!hit) {
+            std::cout << "Miss!\n";
+            break;
+        }
+        std::cout << "Hit!\n";
+        if (defender.yourBoard().shipsAlive() == 0) {
+            std::cout << "All ships destroyed!\n";
+            return;
+        }
+        std::cout << "Shoot again.\n";
+    }
+}
+
+void Battle::run() {
+    setup();
+
+    while (!is_ended_) {
+        turn_(p1_, p2_);
+        if (p2_.yourBoard().shipsAlive() == 0) {
+            p1_.setGamestate(GameState::Player1Win);
+            is_ended_ = true;
+            std::cout << "\n*** Player " << p1_.name() << " wins! ***\n";
+            break;
+        }
+
+        turn_(p2_, p1_);
+        if (p1_.yourBoard().shipsAlive() == 0) {
+            p2_.setGamestate(GameState::Player2Win);
+            is_ended_ = true;
+            std::cout << "\n*** Player " << p2_.name() << " wins! ***\n";
+            break;
+        }
+    }
+}

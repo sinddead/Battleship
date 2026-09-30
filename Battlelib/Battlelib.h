@@ -96,10 +96,23 @@ public:
 
 class Player{
 private:
-	Gamefield  yourBoard_;
-	Gamefield   opponentBoard_;
-	GameState   gamestate_;
+	Gamefield yourBoard_;
+	Gamefield opponentBoard_;
+	GameState gamestate_ =GameState::InProgress;
 	std::string name_;
+public:
+	Player() = default;
+    inline Player(const std::string& n) : name_(n) {}
+
+    inline const std::string& name() const { return name_; }
+    inline GameState gamestate() const { return gamestate_; }
+    inline const Gamefield& yourBoard() const { return yourBoard_; }
+    inline const Gamefield& opponentBoard() const { return opponentBoard_; }
+    inline void setName(const std::string& n) { name_ = n; }
+    inline void setGamestate(GameState s) { gamestate_ = s; }
+    inline Gamefield& yourBoard() { return yourBoard_; }
+    inline Gamefield& opponentBoard() { return opponentBoard_; }
+    bool makeMove(int x, int y, Gamefield& enemyRealBoard);
 };
 
 class Battle{
@@ -107,4 +120,16 @@ private:
 	Player p1_;
 	Player p2_;
 	bool is_ended_;
+
+	void turn_(Player& attacker, Player& defender);
+public:
+	Battle() = default;
+	inline Battle(Player a, Player b) : p1_(std::move(a)), p2_(std::move(b)) {}
+	inline bool isEnded() const { return is_ended_; }
+	inline const Player& player1() const { return p1_; }
+	inline const Player& player2() const { return p2_; }
+
+	void setup();
+	void run();
+	void printBoth() const;
 };
